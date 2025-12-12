@@ -11,14 +11,14 @@
     /* Global Pastel Aesthetic */
     body { 
       font-family: system-ui, sans-serif; 
-      background: linear-gradient(180deg, #FFE4F1 0%, #F3E8FF #E8F3FF 100%); /* pastel pink → pastel blue */
+      background: linear-gradient(180deg, #FFE4F1 0%, #F3E8FF 50%, #E8F3FF 100%);
       color: #4A4A4A;
     }
 
     /* Soft Cards */
     .card {
       background: #FFFFFF;
-      border: 1px solid #FBCFE8; /* pastel pink outline */
+      border: 1px solid #FBCFE8;
       border-radius: 1rem;
       transition: transform 0.2s;
       box-shadow: 0 2px 8px rgba(240, 150, 200, 0.15);
@@ -51,7 +51,6 @@
       background: #EC4899;
       transform: scale(1.05);
       box-shadow: 0 0 12px rgba(236, 72, 153, 0.4);
-
     }
     .btn-blue {
       background: #93C5FD;
@@ -61,7 +60,6 @@
       background: #60A5FA;
       transform: scale(1.05);
       box-shadow: 0 0 12px rgba(147, 197, 253, 0.4);
-
     }
 
     /* Panel */
@@ -71,7 +69,6 @@
       border-radius: 1rem;
       padding: 2rem;
       margin-top: 1rem;
-
     }
 
     /* Tag */
@@ -84,7 +81,7 @@
     }
 
     .accent {
-      color: #EC4899; /* pastel highlight pink */
+      color: #EC4899;
     }
   </style>
 </head>
@@ -98,14 +95,13 @@
       Discover Weekly – Pastel Girly Edition
     </h1>
 
-   <p class="text-center text-xl mb-8 opacity-90">
+    <p class="text-center text-xl mb-8 opacity-90">
       <strong class="accent">A Pastel-Themed Discover Weekly with User Overrides</strong>
-  </p>
-  <p class="text-center text-sm mb-6 text-gray-600">
-  This prototype compares Agent-Controlled vs User-Controlled recommendations.
-</p>
+    </p>
 
-
+    <p class="text-center text-sm mb-6 text-gray-600">
+      This prototype compares Agent-Controlled vs User-Controlled recommendations.
+    </p>
 
     <!-- MODE TOGGLE -->
     <div class="flex justify-center mb-12">
@@ -121,10 +117,12 @@
         <div class="text-3xl font-bold" id="diversity">62%</div>
         <div class="text-gray-500">Playlist Diversity</div>
       </div>
+
       <div class="metric-box p-6">
         <div class="text-3xl font-bold accent" id="novelty">18%</div>
         <div class="text-gray-500">New Artists</div>
       </div>
+
       <div class="metric-box p-6">
         <div class="text-3xl font-bold" id="trust">71%</div>
         <div class="text-gray-500">User Trust</div>
@@ -132,7 +130,9 @@
     </div>
 
     <!-- PLAYLIST TITLE -->
-    <h2 class="text-2xl font-bold mb-6 text-center accent">Your Personalized Discover Weekly Playlist</h2>
+    <h2 class="text-2xl font-bold mb-6 text-center accent">
+      Your Personalized Discover Weekly Playlist
+    </h2>
 
     <!-- PLAYLIST -->
     <div id="playlist" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
@@ -153,7 +153,6 @@
     </div>
 
   </div>
-
 
   <!-- JAVASCRIPT LOGIC -->
   <script>
@@ -180,7 +179,7 @@
       {title:"White Winter Hymnal", artist:"Fleet Foxes", genre:"Folk-Indie", similarity:52, novelty:true, reason:"Seasonal discovery"},
       {title:"Myth", artist:"Beach House", genre:"Dream Pop", similarity:70, novelty:true, reason:"Deep cut recommendation"},
       {title:"Sunset Lover", artist:"Petit Biscuit", genre:"Electronic", similarity:72, novelty:true, reason:"Electronic discovery based on mood patterns"},
-      {title:"Holocene", artist:"Bon Iver", genre:"Indie Folk", similarity:58, novelty:true, reason:"Recommended for acoustic/folk exploration"},
+      {title:"Holocene", artist:"Bon Iver", genre:"Indie Folk", similarity:58, novelty:true, reason:"Recommended for acoustic/folk exploration"}
     ];
 
     const playlistDiv = document.getElementById("playlist");
@@ -191,27 +190,29 @@
       let filteredSongs = songs.filter(
         s => !userProfile.bannedGenres.some(b => b.toLowerCase() === s.genre.toLowerCase())
       );
-// April: Sorting logic combines similarity score, novelty boost, and random variety.
-// Higher score = higher ranking in the playlist
+
+      // April: Sorting logic combines similarity score, novelty boost, and random variety.
+      // Higher score = higher ranking in the playlist.
       filteredSongs.sort((a, b) => {
         let noveltyA = userProfile.forceNovelty && a.novelty ? 50 : (userProfile.forceNovelty ? -30 : 0);
         let noveltyB = userProfile.forceNovelty && b.novelty ? 50 : (userProfile.forceNovelty ? -30 : 0);
 
+        let scoreA = a.similarity + noveltyA + userProfile.randomBoost * Math.random() * 10;
+        let scoreB = b.similarity + noveltyB + userProfile.randomBoost * Math.random() * 10;
 
-        let scoreA = a.similarity + (userProfile.forceNovelty ? (a.novelty ? 50 : -30) : 0) + userProfile.randomBoost * Math.random() * 10;
-        let scoreB = b.similarity + (userProfile.forceNovelty ? (b.novelty ? 50 : -30) : 0) + userProfile.randomBoost * Math.random() * 10;
         return scoreB - scoreA;
       });
 
       let shown = filteredSongs.slice(0, 30);
-
-      let totalSimilarity = 0, noveltyCount = 0;
+      let totalSimilarity = 0;
+      let noveltyCount = 0;
 
       shown.forEach((song, i) => {
         totalSimilarity += song.similarity;
         if (song.novelty) noveltyCount++;
 
-        const isAgentMode = document.getElementById("agentBtn").classList.contains("btn-pink") === false;
+        const isAgentMode = 
+          document.getElementById("agentBtn").classList.contains("btn-pink") === false;
 
         const card = document.createElement("div");
         card.className = "card p-5 shadow-md";
@@ -219,7 +220,7 @@
         card.innerHTML = `
           <div class="flex justify-between">
             <div>
-              <h3 class="font-bold text-lg">${i+1}. ${song.title}</h3>
+              <h3 class="font-bold text-lg">${i + 1}. ${song.title}</h3>
               <p class="text-pink-500">${song.artist} • ${song.genre}</p>
               ${!isAgentMode ? `<p class="text-xs text-gray-500 mt-2">Why here? ${song.reason}</p>` : ""}
             </div>
@@ -229,55 +230,64 @@
 
         playlistDiv.appendChild(card);
       });
+
       // April: Compute playlist-level metrics to simulate user-facing analytics.
       const avgSimilarity = Math.round(totalSimilarity / shown.length);
-      
+
       // April: Diversity decreases with higher similarity clusters; randomBoost adds subtle variation.
       const diversity = Math.round(150 - avgSimilarity + userProfile.randomBoost * 4);
       const noveltyPct = Math.round((noveltyCount / shown.length) * 100);
 
-      document.getElementById("diversity").textContent = diversity + "%";
-      document.getElementById("novelty").textContent = noveltyPct + "%";
-      document.getElementById("trust").textContent = noveltyPct > 30 ? "92%" : (noveltyPct > 15 ? "78%" : "64%");
+      document.getElementById("diversity").textContent = `${diversity}%`;
+      document.getElementById("novelty").textContent = `${noveltyPct}%`;
+      document.getElementById("trust").textContent =
+        noveltyPct > 30 ? "92%" : noveltyPct > 15 ? "78%" : "64%";
     }
+
     // Angel: Switch to Agent-Controlled mode (default Spotify behavior).
     document.getElementById("agentBtn").onclick = () => {
       document.getElementById("agentBtn").className = "btn btn-blue";
       document.getElementById("userBtn").className = "btn btn-pink opacity-50";
-    
-      // Hide the user override tools
+
       document.getElementById("userPanel").classList.add("hidden");
 
       alert("Switched to Agent Control — recommendations follow Spotify's algorithm.");
       generatePlaylist();
     };
 
+    // Angel: Switch to User-Controlled mode (allow overrides)
     document.getElementById("userBtn").onclick = () => {
       document.getElementById("userBtn").className = "btn btn-pink";
       document.getElementById("agentBtn").className = "btn btn-blue opacity-50";
+
       document.getElementById("userPanel").classList.remove("hidden");
+
+      alert("User Control Enabled — override rules are now active.");
       generatePlaylist();
     };
+
     // Angel: User can exclude a genre from future playlist generation.
     function excludeGenre() {
-      const genre = prompt("Enter genre to exclude (e.g., Indie Rock):");
-      
-      if (!genre) {
-        alert ("No genre entered.");
-        return;
-       }
+      const genre = prompt("Enter a genre to exclude (e.g., Indie Rock):");
 
-       const formatted = genre.trim();
-       if (userProfile.bannedGenres.includes(formatted)) {
+      if (!genre) {
+        alert("No genre entered.");
+        return;
+      }
+
+      const formatted = genre.trim();
+
+      if (userProfile.bannedGenres.includes(formatted)) {
         alert(`"${formatted}" is already excluded.`);
         return;
-       }
+      }
 
+      userProfile.bannedGenres.push(formatted);
+      alert(`"${formatted}" has been excluded from recommendations.`);
 
-       userProfile.bannedGenres.push(formatted);
-       alert(`"${formatted}" has been excluded from recommendations.`);      
-       generatePlaylist();
+      generatePlaylist();
     }
+
     // Angel: Toggle novelty forcing (user demands 50%+ new artists).
     function forceNovelty() {
       userProfile.forceNovelty = !userProfile.forceNovelty;
@@ -286,26 +296,25 @@
         alert("Novelty Boost Activated — playlist will include more new artists.");
       } else {
         alert("Novelty Boost Deactivated.");
-      
+      }
+
       generatePlaylist();
-  }
+    }
 
     // Angel: Reset all overrides and create fresh randomized behavior.
-function resetProfile() {
-  const confirmReset = confirm("Reset all overrides and start fresh?");
+    function resetProfile() {
+      const confirmReset = confirm("Reset all overrides and start fresh?");
+      if (!confirmReset) return;
 
-  if (!confirmReset) return;
+      userProfile.bannedGenres = [];
+      userProfile.forceNovelty = false;
+      userProfile.randomBoost = Math.random() * 20 + 10;
 
-  userProfile.bannedGenres = [];
-  userProfile.forceNovelty = false;
-  userProfile.randomBoost = Math.random() * 20 + 10;
+      alert("Profile reset — recommendations refreshed.");
+      generatePlaylist();
+    }
 
-  alert("Profile reset — recommendations refreshed.");
-  generatePlaylist();
-}
-
-// Angel: Start the interface in Agent-Controlled mode by default.
-
+    // Angel: Start the interface in Agent-Controlled mode by default.
     document.getElementById("agentBtn").click();
   </script>
 
