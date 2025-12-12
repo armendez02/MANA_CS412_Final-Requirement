@@ -240,11 +240,15 @@
       document.getElementById("novelty").textContent = noveltyPct + "%";
       document.getElementById("trust").textContent = noveltyPct > 30 ? "92%" : (noveltyPct > 15 ? "78%" : "64%");
     }
-
+    // Angel: Switch to Agent-Controlled mode (default Spotify behavior).
     document.getElementById("agentBtn").onclick = () => {
       document.getElementById("agentBtn").className = "btn btn-blue";
       document.getElementById("userBtn").className = "btn btn-pink opacity-50";
+    
+      // Hide the user override tools
       document.getElementById("userPanel").classList.add("hidden");
+
+      alert("Switched to Agent Control — recommendations follow Spotify's algorithm.");
       generatePlaylist();
     };
 
@@ -254,30 +258,53 @@
       document.getElementById("userPanel").classList.remove("hidden");
       generatePlaylist();
     };
-
+    // Angel: User can exclude a genre from future playlist generation.
     function excludeGenre() {
       const genre = prompt("Enter genre to exclude (e.g., Indie Rock):");
-      if (!genre) return;
-      userProfile.bannedGenres.push(genre.trim());
-      alert(genre + " excluded!");
-      generatePlaylist();
-    }
+      
+      if (!genre) {
+        alert ("No genre entered.");
+        return;
+       }
 
+       const formatted = genre.trim();
+       if (userProfile.bannedGenres.includes(formatted)) {
+        alert(`"${formatted}" is already excluded.`);
+        return;
+       }
+
+
+       userProfile.bannedGenres.push(formatted);
+       alert(`"${formatted}" has been excluded from recommendations.`);      
+       generatePlaylist();
+    }
+    // Angel: Toggle novelty forcing (user demands 50%+ new artists).
     function forceNovelty() {
       userProfile.forceNovelty = !userProfile.forceNovelty;
-      alert("Novelty mode toggled!");
-      generatePlaylist();
-    }
 
-    function resetProfile() {
-      if (confirm("Reset profile to a fresh state?")) {
-        userProfile.bannedGenres = [];
-        userProfile.forceNovelty = false;
-        userProfile.randomBoost = Math.random() * 20 + 10;
-        alert("Profile reset!");
-        generatePlaylist();
-      }
-    }
+      if (userProfile.forceNovelty) {
+        alert("Novelty Boost Activated — playlist will include more new artists.");
+      } else {
+        alert("Novelty Boost Deactivated.");
+      
+      generatePlaylist();
+  }
+
+    // Angel: Reset all overrides and create fresh randomized behavior.
+function resetProfile() {
+  const confirmReset = confirm("Reset all overrides and start fresh?");
+
+  if (!confirmReset) return;
+
+  userProfile.bannedGenres = [];
+  userProfile.forceNovelty = false;
+  userProfile.randomBoost = Math.random() * 20 + 10;
+
+  alert("Profile reset — recommendations refreshed.");
+  generatePlaylist();
+}
+
+// Angel: Start the interface in Agent-Controlled mode by default.
 
     document.getElementById("agentBtn").click();
   </script>
