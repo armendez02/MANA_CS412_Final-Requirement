@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Discover Weekly: Pastel Girly Edition</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    /* Global Pastel Aesthetic */
+    body { 
+      font-family: system-ui, sans-serif; 
+      background: linear-gradient(180deg, #FFE4F1, #E8F3FF); /* pastel pink → pastel blue */
+      color: #4A4A4A;
+    }
+
+    /* Soft Cards */
+    .card {
+      background: #FFFFFF;
+      border: 1px solid #FBCFE8; /* pastel pink outline */
+      border-radius: 1rem;
+      transition: transform 0.2s;
+    }
+    .card:hover {
+      transform: scale(1.03);
+      box-shadow: 0 8px 20px rgba(255, 182, 193, 0.3);
+    }
+
+    /* Metric boxes */
+    .metric-box {
+      background: #FFFFFF;
+      border: 1px solid #FBCFE8;
+      border-radius: 1rem;
+    }
+
+    /* Main buttons */
+    .btn {
+      padding: 14px 28px;
+      border-radius: 9999px;
+      font-weight: bold;
+      font-size: 1.1rem;
+      transition: all 0.2s;
+    }
+    .btn-pink {
+      background: #F472B6;
+      color: white;
+    }
+    .btn-pink:hover {
+      background: #EC4899;
+      transform: scale(1.05);
+    }
+    .btn-blue {
+      background: #93C5FD;
+      color: white;
+    }
+    .btn-blue:hover {
+      background: #60A5FA;
+      transform: scale(1.05);
+    }
+
+    /* Panel */
+    .panel {
+      background: #FFFFFF;
+      border: 1px solid #FBCFE8;
+      border-radius: 1rem;
+      padding: 2rem;
+    }
+
+    /* Tag */
+    .tag-new {
+      background: #FBCFE8;
+      color: #BE185D;
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.375rem;
+    }
+
+    .accent {
+      color: #EC4899; /* pastel highlight pink */
+    }
+  </style>
+</head>
+
+
+<body class="min-h-screen py-12">
+  <div class="max-w-5xl mx-auto px-6">
+
+    <!-- MAIN TITLE -->
+    <h1 class="text-4xl md:text-5xl font-bold text-center mb-4 accent">
+      Discover Weekly – Pastel Girly Edition
+    </h1>
+
+   <p class="text-center text-xl mb-8 opacity-90">
+      <strong class="accent">A Pastel-Themed Discover Weekly with User Overrides</strong>
+  </p>
+  <p class="text-center text-sm mb-6 text-gray-600">
+  This prototype compares Agent-Controlled vs User-Controlled recommendations.
+</p>
+
+
+
+    <!-- MODE TOGGLE -->
+    <div class="flex justify-center mb-12">
+      <div class="bg-white p-4 rounded-full flex items-center gap-6 shadow-xl border border-pink-200">
+        <button id="agentBtn" class="btn btn-blue">Agent Control</button>
+        <button id="userBtn" class="btn btn-pink">User Control</button>
+      </div>
+    </div>
+
+    <!-- METRICS -->
+    <div class="grid grid-cols-3 gap-6 text-center mb-10">
+      <div class="metric-box p-6">
+        <div class="text-3xl font-bold" id="diversity">62%</div>
+        <div class="text-gray-500">Playlist Diversity</div>
+      </div>
+      <div class="metric-box p-6">
+        <div class="text-3xl font-bold accent" id="novelty">18%</div>
+        <div class="text-gray-500">New Artists</div>
+      </div>
+      <div class="metric-box p-6">
+        <div class="text-3xl font-bold" id="trust">71%</div>
+        <div class="text-gray-500">User Trust</div>
+      </div>
+    </div>
+
+    <!-- PLAYLIST TITLE -->
+    <h2 class="text-2xl font-bold mb-6 text-center accent">Your Personalized Discover Weekly Playlist</h2>
+
+    <!-- PLAYLIST -->
+    <div id="playlist" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+    <!-- USER CONTROL PANEL -->
+    <div id="userPanel" class="hidden mt-12 panel">
+      <h3 class="text-2xl font-bold mb-6 text-center accent">User Override Controls</h3>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+        <button onclick="excludeGenre()" class="btn btn-pink">Exclude a Genre</button>
+        <button onclick="forceNovelty()" class="btn btn-blue">Force Novelty</button>
+        <button onclick="resetProfile()" class="btn btn-pink">Reset Profile</button>
+      </div>
+
+      <p class="text-center text-gray-500 mt-6 text-sm">
+        Examples: "Indie Rock", "Dream Pop", "Alternative" (case-insensitive)
+      </p>
+    </div>
+
+  </div>
+
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    let userProfile = {
+      topGenres: ["Indie Rock", "Alternative", "Electronic", "Dream Pop"],
+      topArtists: ["Tame Impala", "The Strokes", "Arctic Monkeys", "Glass Animals", "MGMT"],
+      listeningHistoryWeeks: 84,
+      bannedGenres: [],
+      forceNovelty: false,
+      randomBoost: 0
+    };
+
+    const songs = [
+      {title:"Eventually", artist:"Tame Impala", genre:"Dream Pop", similarity:96, novelty:false, reason:"You listened 89× last month"},
+      {title:"Reptilia", artist:"The Strokes", genre:"Indie Rock", similarity:94, novelty:false, reason:"Core artist match"},
+      {title:"Do I Wanna Know?", artist:"Arctic Monkeys", genre:"Indie Rock", similarity:92, novelty:false, reason:"High co-listening"},
+      {title:"Heat Waves", artist:"Glass Animals", genre:"Alternative", similarity:88, novelty:false, reason:"Genre overlap"},
+      {title:"Electric Feel", artist:"MGMT", genre:"Dream Pop", similarity:87, novelty:false, reason:"Historical favorite"},
+      {title:"Pink Funeral", artist:"Beach House", genre:"Dream Pop", similarity:68, novelty:true, reason:"Exploration into new artist"},
+      {title:"Kyoto", artist:"Phoebe Bridgers", genre:"Indie Folk", similarity:38, novelty:true, reason:"Sentiment bridge"},
+      {title:"Nights", artist:"Frank Ocean", genre:"R&B", similarity:45, novelty:true, reason:"Mood pattern match"},
+      {title:"White Winter Hymnal", artist:"Fleet Foxes", genre:"Folk-Indie", similarity:52, novelty:true, reason:"Seasonal discovery"},
+      {title:"Myth", artist:"Beach House", genre:"Dream Pop", similarity:70, novelty:true, reason:"Deep cut recommendation"}
+    ];
+
+    const playlistDiv = document.getElementById("playlist");
+
+    function generatePlaylist() {
+      playlistDiv.innerHTML = "";
+
+      let filteredSongs = songs.filter(
+        s => !userProfile.bannedGenres.some(b => b.toLowerCase() === s.genre.toLowerCase())
+      );
+
+      filteredSongs.sort((a, b) => {
+        let scoreA = a.similarity + (userProfile.forceNovelty ? (a.novelty ? 50 : -30) : 0) + userProfile.randomBoost * Math.random() * 10;
+        let scoreB = b.similarity + (userProfile.forceNovelty ? (b.novelty ? 50 : -30) : 0) + userProfile.randomBoost * Math.random() * 10;
+        return scoreB - scoreA;
+      });
+
+      let shown = filteredSongs.slice(0, 30);
+
+      let totalSimilarity = 0, noveltyCount = 0;
+
+      shown.forEach((song, i) => {
+        totalSimilarity += song.similarity;
+        if (song.novelty) noveltyCount++;
+
+        const isAgentMode = document.getElementById("agentBtn").classList.contains("btn-pink") === false;
+
+        const card = document.createElement("div");
+        card.className = "card p-5 shadow-md";
+
+        card.innerHTML = `
+          <div class="flex justify-between">
+            <div>
+              <h3 class="font-bold text-lg">${i+1}. ${song.title}</h3>
+              <p class="text-pink-500">${song.artist} • ${song.genre}</p>
+              ${!isAgentMode ? `<p class="text-xs text-gray-500 mt-2">Why here? ${song.reason}</p>` : ""}
+            </div>
+            ${song.novelty ? `<span class="tag-new">New</span>` : ""}
+          </div>
+        `;
+
+        playlistDiv.appendChild(card);
+      });
+
+      const avgSimilarity = Math.round(totalSimilarity / shown.length);
+      const diversity = Math.round(150 - avgSimilarity + userProfile.randomBoost * 5);
+      const noveltyPct = Math.round((noveltyCount / shown.length) * 100);
+
+      document.getElementById("diversity").textContent = diversity + "%";
+      document.getElementById("novelty").textContent = noveltyPct + "%";
+      document.getElementById("trust").textContent = noveltyPct > 30 ? "92%" : (noveltyPct > 15 ? "78%" : "64%");
+    }
+
+    document.getElementById("agentBtn").onclick = () => {
+      document.getElementById("agentBtn").className = "btn btn-blue";
+      document.getElementById("userBtn").className = "btn btn-pink opacity-50";
+      document.getElementById("userPanel").classList.add("hidden");
+      generatePlaylist();
+    };
+
+    document.getElementById("userBtn").onclick = () => {
+      document.getElementById("userBtn").className = "btn btn-pink";
+      document.getElementById("agentBtn").className = "btn btn-blue opacity-50";
+      document.getElementById("userPanel").classList.remove("hidden");
+      generatePlaylist();
+    };
+
+    function excludeGenre() {
+      const genre = prompt("Enter genre to exclude (e.g., Indie Rock):");
+      if (!genre) return;
+      userProfile.bannedGenres.push(genre.trim());
+      alert(genre + " excluded!");
+      generatePlaylist();
+    }
+
+    function forceNovelty() {
+      userProfile.forceNovelty = !userProfile.forceNovelty;
+      alert("Novelty mode toggled!");
+      generatePlaylist();
+    }
+
+    function resetProfile() {
+      if (confirm("Reset profile to a fresh state?")) {
+        userProfile.bannedGenres = [];
+        userProfile.forceNovelty = false;
+        userProfile.randomBoost = Math.random() * 20 + 10;
+        alert("Profile reset!");
+        generatePlaylist();
+      }
+    }
+
+    document.getElementById("agentBtn").click();
+  </script>
+
+</body>
+</html>
