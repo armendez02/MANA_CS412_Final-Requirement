@@ -157,6 +157,8 @@
 
   <!-- JAVASCRIPT LOGIC -->
   <script>
+    // Core profile representing the user's long-term listening habits.
+    // April: Added comments for clarity and debugging.
     let userProfile = {
       topGenres: ["Indie Rock", "Alternative", "Electronic", "Dream Pop"],
       topArtists: ["Tame Impala", "The Strokes", "Arctic Monkeys", "Glass Animals", "MGMT"],
@@ -176,7 +178,9 @@
       {title:"Kyoto", artist:"Phoebe Bridgers", genre:"Indie Folk", similarity:38, novelty:true, reason:"Sentiment bridge"},
       {title:"Nights", artist:"Frank Ocean", genre:"R&B", similarity:45, novelty:true, reason:"Mood pattern match"},
       {title:"White Winter Hymnal", artist:"Fleet Foxes", genre:"Folk-Indie", similarity:52, novelty:true, reason:"Seasonal discovery"},
-      {title:"Myth", artist:"Beach House", genre:"Dream Pop", similarity:70, novelty:true, reason:"Deep cut recommendation"}
+      {title:"Myth", artist:"Beach House", genre:"Dream Pop", similarity:70, novelty:true, reason:"Deep cut recommendation"},
+      {title:"Sunset Lover", artist:"Petit Biscuit", genre:"Electronic", similarity:72, novelty:true, reason:"Electronic discovery based on mood patterns"},
+      {title:"Holocene", artist:"Bon Iver", genre:"Indie Folk", similarity:58, novelty:true, reason:"Recommended for acoustic/folk exploration"},
     ];
 
     const playlistDiv = document.getElementById("playlist");
@@ -187,8 +191,13 @@
       let filteredSongs = songs.filter(
         s => !userProfile.bannedGenres.some(b => b.toLowerCase() === s.genre.toLowerCase())
       );
-
+// April: Sorting logic combines similarity score, novelty boost, and random variety.
+// Higher score = higher ranking in the playlist
       filteredSongs.sort((a, b) => {
+        let noveltyA = userProfile.forceNovelty && a.novelty ? 50 : (userProfile.forceNovelty ? -30 : 0);
+        let noveltyB = userProfile.forceNovelty && b.novelty ? 50 : (userProfile.forceNovelty ? -30 : 0);
+
+
         let scoreA = a.similarity + (userProfile.forceNovelty ? (a.novelty ? 50 : -30) : 0) + userProfile.randomBoost * Math.random() * 10;
         let scoreB = b.similarity + (userProfile.forceNovelty ? (b.novelty ? 50 : -30) : 0) + userProfile.randomBoost * Math.random() * 10;
         return scoreB - scoreA;
@@ -220,9 +229,11 @@
 
         playlistDiv.appendChild(card);
       });
-
+      // April: Compute playlist-level metrics to simulate user-facing analytics.
       const avgSimilarity = Math.round(totalSimilarity / shown.length);
-      const diversity = Math.round(150 - avgSimilarity + userProfile.randomBoost * 5);
+      
+      // April: Diversity decreases with higher similarity clusters; randomBoost adds subtle variation.
+      const diversity = Math.round(150 - avgSimilarity + userProfile.randomBoost * 4);
       const noveltyPct = Math.round((noveltyCount / shown.length) * 100);
 
       document.getElementById("diversity").textContent = diversity + "%";
